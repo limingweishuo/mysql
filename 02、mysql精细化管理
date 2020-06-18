@@ -1,0 +1,55 @@
+--mysql精细化管理
+    --root common_user developer common_dba root_dba 基本开发分类
+
+    --查看mysql.user中账户
+        --use mysql;
+        --select user, host from user;
+
+    --查看权限
+        --show grants;
+        --show grants for '账户'@'密码';  # 单引号必须加上
+
+    --授予权限的方式
+        --授权格式： grant  权限  on  数据库.*  to  用户名@登录主机  identified  by  "密码";
+
+    [本地权限授予：]
+    --给localhost[本地ip]中test用户所有权限，使其能够操作testDB数据库中所有表格，用户登陆密码是1234
+        --示例如下：grant all privileges on testDB.* to 'test'@'localhost' identified by '1234';
+                   flush privileges;  # 刷新系统权限表，即时生效
+
+    --给localhost[本地ip]中test用户select[查] update[改]权限，使其能够操作testDB数据库中所有表格，用户登陆密码是1234
+        --示例如下：grant  select,update  on  testDB.*  to  'test'@'localhost'  identified  by  '1234';
+                   flush privileges;  # 刷新系统权限表，即时生效
+    
+    [远程权限授予：]
+        --示例如下：# 授予 select[查] update[改] 权限给用户common_user能够通过远程ip，以密码1234访问服务器上testDB数据库的所有表格
+                   grant  select,update  on  testDB.*  to  'common_user'@'ip'  identified  by  '1234';  
+                   flush privileges;  # 刷新系统权限表，即时生效
+                         
+                   # 授予所有权限给用户common_user能够通过远程ip，以密码1234访问服务器上testDB数据库的所有表格
+                   grant  all privileges  on  testDB.*  to  'common_user'@'ip'  identified  by  '1234';  
+                   flush privileges;  # 刷新系统权限表，即时生效
+
+        --远程登陆：mysql -h127.0.0.1 -P3306 -ucommon_user -p
+
+    [账号销毁和密码修改：]
+        --账号销毁：
+            --查看账户有哪些：
+                use mysql;
+                select user, host from user; 
+            --找到对应账户的人员，执行删除语句如下：
+                delete from user where user='common_user_01' and host='ip/localhost';
+                flush privileges;  # 刷新权限
+
+        --密码修改：
+            --set password for '用户账号'@'ip/localhost' = password('新密码');
+
+    [权限回收：]
+        --创建数据库：create database test_DB;
+        --创建数据表：create table 表名(字段1  字段属性1 字段属性2 字段属性3 *** , 字段2  字段属性1 字段属性2 字段属性3 ***,  字段3  字段属性1 字段属性2 字段属性3 ***,  字段4  字段属性1 字段属性2 字段属性3 ***,   ***)
+        
+        --收回赋予账户user远程登陆testDB数据库的一切权限
+            --示例如下：revoke all privileges on testDB.* from 'user/账户名'@'ip/localhost'
+
+        --grant, revoke 用户权限后，该用户只有重新连接 MySQL 数据库，权限才能生效
+
