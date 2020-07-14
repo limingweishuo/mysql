@@ -1,0 +1,34 @@
+1、事务：一系列执行sql语句的操作集合，要么完全执行要么完全不执行
+    --使用场景：银行转账，a 500美金  b 0美金 a向b转账200美金
+    --事务的特性：
+        --原子性：事务中所有sql语句被视为一个单元，只有当整个执行完毕才能更新数据库，否则只能回滚到原始状态
+        解释：转账过程中，执行语句为 [[a - 200], [b + 200]]， 不会出现 [a - 200] a变成300 b没有变化的情况
+        
+        --一致性：数据库总是从一个状态转向另一个状态，不会出现过渡状态
+        解释：状态只能是由 a 500美金  b 0美金 -->  a 300美金  b 200美金
+             不会出现 a 500美金 b 0美金  -->  a 300美金 b 0美金/a 500美金 b 200美金  -->  a 300美金  b 200美金 这种情况
+        
+        --隔离性：事务在提交之前，对于其他事务是不可见的
+        解释：在a转账给b200美金这个事务执行中， 如果有其他人在提交操作别的事务时，他所见到的a账户金额是500美金 b是0美金
+        
+        --持久性：事务所做的改变会永久保存到数据库中
+        
+2、mysql只有innoDB存储引擎可以使用事务，且默认mysql存储引擎就是innoDB
+    --存储引擎：存储数据的一种机制
+    --show engines;  查看mysql支持的存储引擎
+    
+    --支持事务的存储引擎innoDB查询、插入速度都比较慢，相较而言MyISAM查询、插入更加快速
+        测试数据：表：364250条数据 
+        sql = "select * from Jenkins_Job where (NODE_LABELS regexp '(galaxy-arm-ar|galaxy-arm-campus|galaxy-arm-center|galaxy-arm-gate3
+              |galaxy-arm-l2|galaxy-arm-l3|galaxy-arm-midware|galaxy-arm-psp|galaxy-arm-qis2|galaxy-arm-si|galaxy-arm-usg|galaxy-arm-w
+              lan|galaxy-arm-xm|galaxy-arm-ccbep|galaxy-arm-xm3|galaxy-arm-feature|galaxy-arm-gate|galaxy-arm-gate2|galaxy-arm-highqis
+              |galaxy-arm-personal|galaxy-arm-xm317|galaxy-arm-qis|galaxy-arm-xm2|galaxy-arm-team|galaxy-arm-test1|galaxy-arm-test2|ga
+              laxy-arm-test3|galaxy-arm-test4|galaxy-arm-test5)')and (starttime regexp '(2020626|20200627|20200628|20200629|20200630|2
+              0200701|20200702|20200703|20200704|20200705|20200706|20200707|20200708|20200709)');"
+        innoDB查询复杂条件耗时：21.122918128967285       MyISAM查询复杂条件耗时：20.710320949554443 
+        
+    --修改数据表引擎的sql语句：alter table table_name engine='MyISAM';
+                             alter table table_name engine='InnoDB';
+                             
+    --查看字段：desc  表名;  仅查看字段
+               show create table 表名;  查看字段、引擎、字符集
