@@ -17,7 +17,7 @@
     --存储引擎：存储数据的一种机制
     --show engines;  查看mysql支持的存储引擎
     
-    --支持事务的存储引擎innoDB查询、插入速度都比较慢，相较而言MyISAM查询、插入更加快速
+    --支持事务的存储引擎innoDB查询、插入速度都比较慢、支持回滚，相较而言MyISAM查询、插入更加快速、不支持回滚
         测试数据：表：364250条数据 
         sql = "select * from Jenkins_Job where (NODE_LABELS regexp '(galaxy-arm-ar|galaxy-arm-campus|galaxy-arm-center|galaxy-arm-gate3
               |galaxy-arm-l2|galaxy-arm-l3|galaxy-arm-midware|galaxy-arm-psp|galaxy-arm-qis2|galaxy-arm-si|galaxy-arm-usg|galaxy-arm-w
