@@ -32,3 +32,20 @@
                              
     --查看字段：desc  表名;  仅查看字段
                show create table 表名;  查看字段、引擎、字符集
+    --开启事务命令：begin;  或者
+                   start transaction;
+        开启一个事务的实际意义在于：如果我们希望接下来mysql操作出错时可以回滚或者撤销，那么就需要临时开启一段事务，不论是使用某种语言操作数据库还是直接操作mysql，都有很重要的作用
+        --示例如下：
+            --begin;
+            --insert into table_name (key_01, key_02) values(lala_01, lala_02);  # 但是这里插入错误，使用事务就可以直接回滚不需要到数据库里删除，消除了误删除的可能
+            --rollback;
+            --insert into table_name (key_01, key_03) values(lala_01. lala_03);  # 重新插入
+            --commit; 提交事务，事务完成
+      
+    --事务自动提交功能的开启和关闭[只有支持事务的引擎才能回滚数据]
+        --支持事务的引擎InnoDB是默认开启事务自动提交的
+        --如何关闭事务自动提交：set autocommit = 0;  
+            关闭之后事务必须commit;
+              --insert into table key values();  这个执行之后，打开新的控制台进入数据库查询数据是查询不到最新的插入数据的，因为事务之间是隔离的没有插入生效
+              --commit;  只有提交之后，新开启的控制台才能查询到最新插入的数据
+              --rollback;  如果在commit之前rollback，那么会清除缓存事务文件中的数据
