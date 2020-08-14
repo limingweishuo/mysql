@@ -1,0 +1,38 @@
+1、redis启动 windows 方式
+  --首先进入redis安装目录，进行验证 
+      --cd D:\redis  进入目录，cmd控制台为管理员权限
+      --先试着启动使用，这种方式需要启动服务器后台不关闭，属于实验性
+      --redis-server  启动redis服务器
+      --另启动一个cmd控制台  redis-cli进入即可
+  
+  --redis安装为windows服务
+      --卸载window中redis服务 redis6379：
+           --redis-server --service-uninstall --service-name redis6379
+           --结果1：[22840] 14 Aug 15:33:09.154 # Redis service successfully uninstalled.   表示redis已经成功卸载
+           --结果2：[22872] 14 Aug 15:33:12.765 # HandleServiceCommands: system error caught. error code=1072, message = DeleteService failed: unknown error    表示redis没有安装为windows
+                    服务，不需要写在可以立即安装
+                    
+      --安装window中redis服务 redis6379：
+           --redis-server --service-install redis.windows.conf --service-name redis6379
+           
+      --安装完毕以后也没法使用，必须启动redis：
+           --net start redis6379
+      
+      --关闭redis服务：
+           --net stop redis6379
+           
+2、redis密码设置
+    --查看密码
+      --登录：redis-cli -p 6379 -a test123
+      --查看：config get requirepass
+     
+    --设置密码：config set requirepass test123  设置密码为 test123
+    
+3、python中如何连接redis
+    import redis
+
+    # 普通连接
+    conn = redis.Redis(host="10.165.77.118", port=6379,password="test123")
+    conn.set("x1","hello",ex=5) # ex代表seconds，px代表ms
+    val = conn.get("x1")
+    print(val)
