@@ -1,0 +1,25 @@
+1、with 语法用于简化资源操作的后续清除操作，是 try/finally 的替代方法，实现原理建立在上下文管理器之上
+   代码如下：
+    from pymysql import *
+ 
+    class DB(): 
+        def __init__(self, my_database1, my_password): 
+            self.conn = connect(host='localhost', port=3306, database=str(my_database1), user='root', password=str(my_password),charset='utf8')
+            self.cs1 = self.conn.cursor()
+  
+        def __enter__(self):
+            return (self.cs1, self.conn)
+ 
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            self.conn.close()
+            self.cs1.close()
+ 
+    with DB('jing_dong','mysql') as (db, dbcoon):
+        count = db.execute('''select * from goods;''')
+        content = db.fetchall()
+        print(content)
+        for i in range(len(content)):
+            print(content[i])
+            i += 1
+        db.execute('''insert into goods(name,price) values('鞋子','200');''')
+
