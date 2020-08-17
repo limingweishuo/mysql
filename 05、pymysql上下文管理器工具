@@ -3,6 +3,7 @@
     from pymysql import *
  
     class DBInitialize(object):
+        # 参数使用默认值，如果没有传入则会使用默认值，否则使用传入的值，等价于java中的重载
         def __init__(self, database, password):
             self.conn = Connect(host='10.29.11.229', port='3306', user='root', passwd=password, db=database, charset='utf8')
             self.cursor = self.conn.cursor()
