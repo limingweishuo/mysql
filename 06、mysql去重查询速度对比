@@ -1,0 +1,77 @@
+"""
+    # 本次测试内容：测试数据库mysql
+        数据表一：Jenkins_Job  数据量：3370000
+        数据表二：out_rules    数据量：78000
+    1、对比以下两种数据查询思路下 数据查询和过滤 的速度
+        1、改变查询条件查询，多次查询。涉及到多次查询，看看能不能建立一个进程池进行管理
+        2、一次查出大量数据并做处理：不限于多线程多进程
+
+    2、对比两种方式下数据查询去重的速度：
+        1、使用sql语句查询并去重：这个就是涉及到mysql本身查询的优化了
+        2、查询出所有数据之后进行去重：手段不限于各种线程进程
+"""
+import time
+from pymysql import *
+from pymysql.cursors import DictCursor, SSCursor, Cursor, SSDictCursor
+
+
+class DBInitialize(object):
+    # 参数使用默认值，如果没有传入则会使用默认值，否则使用传入的值，等价于java中的重载
+    def __init__(self, database, password):
+        self.conn = Connect(host='10.29.11.229', port=3306, user='root', passwd=password, db=database, charset='utf8', cursorclass=SSDictCursor)
+        self.cursor = self.conn.cursor()
+
+    def __enter__(self):
+        return (self.cursor, self.conn)
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.cursor.close()
+        self.conn.close()
+
+
+# 数据查询过滤速度对比
+# 输入参数：cursor对象
+def compare_multi_filter(dbinit):
+    pass
+
+# 数据库去重速度对比
+# 输入参数：cursor对象
+def compare_distinct(dbinit_tuple):
+    """
+        数据库：Jenkins_Job    sql自身执行时间：46.4111s    自己写的执行时间：47.1049s   去重字段：jenkins_ip
+        数据库：out_rules      sql自身执行时间：0.1270s     自己写的执行时间：1.3565s    去重字段：tasktype
+    """
+    # 使用sql进行去重
+    dbinit = dbinit_tuple[0]
+    start_distinct_01 = time.time()
+    # sql_distinct_01 = 'select distinct tasktype from out_rules;'
+    sql_distinct_01 = 'select distinct jenkins_ip from Jenkins_Job;'
+    dbinit.execute(sql_distinct_01)
+    content_01 = dbinit.fetchall()
+    for i in content_01:
+        print(i)
+    print("sql自身去重执行时间_01：{}".format(str(time.time() - start_distinct_01)))
+
+    # 使用if比较进行去重
+    start_distinct_02 = time.time()
+    # sql_distinct_02 = 'select tasktype from out_rules;'
+    sql_distinct_02 = 'select jenkins_ip from Jenkins_Job;'
+    dbinit.execute(sql_distinct_02)
+    content_02 = dbinit.fetchall()
+
+    content_list = []
+    for j in content_02:
+        # content_list.append(j['jenkins_ip'])
+        pass
+    print("取出所有数据所需时间_02：{}".format(str(time.time() - start_distinct_02)))
+
+    start_distinct_03 = time.time()
+    content_distinct = list(set(content_list))
+    for j in content_distinct:
+        print(j)
+    print("数据去重所需时间_03：{}".format(str(time.time() - start_distinct_03)))
+
+if __name__ == '__main__':
+    with DBInitialize('GalaxyPipeline', '1234liming') as dbinit:
+        # 数据库去重速度对比
+        compare_distinct(dbinit)
